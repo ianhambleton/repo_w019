@@ -83,6 +83,7 @@ local sc1 `r(p9)'
 local sc2 `r(p10)'
 local sc3 `r(p11)'
 local sc4 `r(p12)'
+/*
 #delimit ;
 	gr twoway
         /// AA
@@ -177,12 +178,12 @@ local sc4 `r(p12)'
 	** genotype
 	** sex
 preserve
-	keep if aaexam >=12 & aaexam<=20 
+	keep if aaexam >=12 & aaexam<=24 
 	gen agroups = .
 	replace agroups = 1 if aaexam >=12 & aaexam<16
 	replace agroups = 2 if aaexam >=16 & aaexam<20
 	replace agroups = 3 if aaexam >=20 & aaexam<24
-	label define agroups_ 1 "12-16" 2 "16-20" 3 "16-18" 4 "18-20" 5 "20-22", modify
+	label define agroups_ 1 "12-16" 2 "16-20" 3 "20-24", modify
 	label values agroups agroups_ 
 
 	** Box and Whisker - unadjusted
@@ -192,50 +193,41 @@ preserve
 	keep gid sheight saheight geno agroup
 	collapse (mean) sheight saheight, by(gid agroups geno) 
 	reshape wide sheight saheight, i(gid geno) j(agroups)
-	reshape wide sheight1 sheight2 sheight3 sheight4 sheight5 saheight1 saheight2 saheight3 saheight4 saheight5, i(gid) j(geno)
-	** 11 	12-14 (AA)
-	** 21 	14-16 (AA)
-	** 31 	16-18 (AA)
-	** 41 	18-20 (AA)
-	** 51 	20-22 (AA)
-	** 12 	12-14 (SS)
-	** 22 	14-16 (SS)
-	** 32 	16-18 (SS)
-	** 42 	18-20 (SS)
-	** 52 	20-22 (SS)
+	reshape wide sheight1 sheight2 sheight3   saheight1 saheight2 saheight3  , i(gid) j(geno)
+	** 11 	12-16 (AA)
+	** 21 	16-20 (AA)
+	** 31 	20-24 (AA)
+	** 12 	12-16 (AA)
+	** 22 	16-20 (AA)
+	** 32 	20-24 (AA)
+
 
 	** Unadjusted spleen length
     #delimit ;
-    gr hbox sheight12 sheight22 sheight32 sheight42 sheight52 sheight11 sheight21 sheight31 sheight41 sheight51 sheight13 sheight23 sheight33 sheight43 sheight53 
+    gr hbox sheight12 sheight22 sheight32 sheight11 sheight21 sheight31 sheight13 sheight23 sheight33 
 	    , 
 		medtype(cline) medline(lc(gs16) lw(0.5) ) 
 
         box(1, lc("`blu1'") fc("`blu1'") )
         box(2, lc("`blu1'%75") fc("`blu1'%75") )
         box(3, lc("`blu2'") fc("`blu2'") )
-        box(4, lc("`blu2'%75") fc("`blu2'%75") )
 
-        box(5, lc("`red1'") fc("`red1'") )
-        box(6, lc("`red1'%75") fc("`red1'%75") )
-        box(7, lc("`red2'") fc("`red2'") )
-        box(8, lc("`red2'%75") fc("`red2'%75") )
-        box(9, lc("`ora1'") fc("`ora1'") )
-        box(10, lc("`ora1'%75") fc("`ora1'%75") )
-        box(11, lc("`ora2'") fc("`ora2'") )
-        box(12, lc("`ora2'%75") fc("`ora2'%75") )
+        box(4, lc("`red1'") fc("`red1'") )
+        box(5, lc("`red1'%75") fc("`red1'%75") )
+        box(6, lc("`red2'") fc("`red2'") )
+        box(7, lc("`ora1'") fc("`ora1'") )
+        box(8, lc("`ora1'%75") fc("`ora1'%75") )
+        box(9, lc("`ora2'") fc("`ora2'") )
 
         marker(1, mlc("`blu1'") mfc("`blu1'") m(o))
         marker(2, mlc("`blu1'%75") mfc("`blu1'%75")  m(o))
         marker(3, mlc("`blu2'") mfc("`blu2'")  m(o))
-        marker(4, mlc("`blu2'%75") mfc("`blu2'%75")  m(o))
-        marker(5, mlc("`red1'") mfc("`red1'")  m(o))
-        marker(6, mlc("`red1'%75") mfc("`red1'%75")  m(o))
-        marker(7, mlc("`red2'") mfc("`red2'")  m(o))
-        marker(8, mlc("`red2'%75") mfc("`red2'%75")  m(o))
-        marker(9, mlc("`ora1'") mfc("`ora1'")  m(o))
-        marker(10, mlc("`ora1'%75") mfc("`ora1'%75")  m(o))
-        marker(11, mlc("`ora2'") mfc("`ora2'")  m(o))
-        marker(12, mlc("`ora2'%75") mfc("`ora2'%75")  m(o))
+        marker(4, mlc("`red1'") mfc("`red1'")  m(o))
+        marker(5, mlc("`red1'%75") mfc("`red1'%75")  m(o))
+        marker(6, mlc("`red2'") mfc("`red2'")  m(o))
+        marker(7, mlc("`ora1'") mfc("`ora1'")  m(o))
+        marker(8, mlc("`ora1'%75") mfc("`ora1'%75")  m(o))
+        marker(9, mlc("`ora2'") mfc("`ora2'")  m(o))
 
         plotregion(c(gs16) ic(gs16) ilw(thin) lw(thin))
         graphregion(color(gs16) ic(gs16) ilw(thin) lw(thin))
@@ -246,58 +238,49 @@ preserve
         /// yscale(range(-2500(100)1010))
         ytitle(" ", size(5) color(gs8) margin(l=0 r=0 t=5 b=0)) 
 
-        legend(order(1 2 3 4 5 6 7 8 9 10 11 12) 
-        label(1 "SS (12-14 yrs)")  
-        label(2 "SS (14-16)") 
-        label(3 "SS (16-18)") 
-        label(4 "SS (18-20)") 
-        label(5 "AA (12-14 yrs)")  
-        label(6 "AA (14-16)") 
-        label(7 "AA (16-18)") 
-        label(8 "AA (18-20)") 
-        label(9 "SC (12-14 yrs)")  
-        label(10 "SC (14-16)") 
-        label(11 "SC (16-18)") 
-        label(12 "SC (18-20)") 
-        cols(4) position(6) margin(t=0) size(3.5) symxsize(6) symysize(4) color("gs8")
+        legend(order(1 2 3 4 5 6 7 8 9) 
+        label(1 "SS (12-16 yrs)")  
+        label(2 "SS (16-20)") 
+        label(3 "SS (20-24)") 
+        label(4 "AA (12-16 yrs)")  
+        label(5 "AA (16-20)") 
+        label(6 "AA (20-24)") 
+        label(7 "SC (12-16 yrs)")    
+        label(8 "SC (16-20)") 
+        label(9 "SC (20-24)") 
+        cols(3) position(6) margin(t=0) size(3.5) symxsize(6) symysize(4) color("gs8")
         )
 
         name(bw_unadj)
     ;
     #delimit cr
 
-/*
+
 	** Adjusted spleen length (spleen length / participant height)
     #delimit ;
-    gr hbox saheight12 saheight22 saheight32 saheight42 saheight11 saheight21 saheight31 saheight41 saheight13 saheight23 saheight33 saheight43 
+    gr hbox saheight12 saheight22 saheight32   saheight11 saheight21 saheight31  saheight13 saheight23 saheight33  
 	    , 
 		medtype(cline) medline(lc(gs16) lw(0.5) ) 
 
         box(1, lc("`blu1'") fc("`blu1'") )
         box(2, lc("`blu1'%75") fc("`blu1'%75") )
         box(3, lc("`blu2'") fc("`blu2'") )
-        box(4, lc("`blu2'%75") fc("`blu2'%75") )
-        box(5, lc("`red1'") fc("`red1'") )
-        box(6, lc("`red1'%75") fc("`red1'%75") )
-        box(7, lc("`red2'") fc("`red2'") )
-        box(8, lc("`red2'%75") fc("`red2'%75") )
-        box(9, lc("`ora1'") fc("`ora1'") )
-        box(10, lc("`ora1'%75") fc("`ora1'%75") )
-        box(11, lc("`ora2'") fc("`ora2'") )
-        box(12, lc("`ora2'%75") fc("`ora2'%75") )
+        box(4, lc("`red1'") fc("`red1'") )
+        box(5, lc("`red1'%75") fc("`red1'%75") )
+        box(6, lc("`red2'") fc("`red2'") )
+        box(7, lc("`ora1'") fc("`ora1'") )
+        box(8, lc("`ora1'%75") fc("`ora1'%75") )
+        box(9, lc("`ora2'") fc("`ora2'") )
 
         marker(1, mlc("`blu1'") mfc("`blu1'") m(o))
         marker(2, mlc("`blu1'%75") mfc("`blu1'%75")  m(o))
         marker(3, mlc("`blu2'") mfc("`blu2'")  m(o))
-        marker(4, mlc("`blu2'%75") mfc("`blu2'%75")  m(o))
-        marker(5, mlc("`red1'") mfc("`red1'")  m(o))
-        marker(6, mlc("`red1'%75") mfc("`red1'%75")  m(o))
-        marker(7, mlc("`red2'") mfc("`red2'")  m(o))
-        marker(8, mlc("`red2'%75") mfc("`red2'%75")  m(o))
-        marker(9, mlc("`ora1'") mfc("`ora1'")  m(o))
-        marker(10, mlc("`ora1'%75") mfc("`ora1'%75")  m(o))
-        marker(11, mlc("`ora2'") mfc("`ora2'")  m(o))
-        marker(12, mlc("`ora2'%75") mfc("`ora2'%75")  m(o))
+        marker(4, mlc("`red1'") mfc("`red1'")  m(o))
+        marker(5, mlc("`red1'%75") mfc("`red1'%75")  m(o))
+        marker(6, mlc("`red2'") mfc("`red2'")  m(o))
+        marker(7, mlc("`ora1'") mfc("`ora1'")  m(o))
+        marker(8, mlc("`ora1'%75") mfc("`ora1'%75")  m(o))
+        marker(9, mlc("`ora2'") mfc("`ora2'")  m(o))
 
         plotregion(c(gs16) ic(gs16) ilw(thin) lw(thin))
         graphregion(color(gs16) ic(gs16) ilw(thin) lw(thin))
@@ -320,20 +303,17 @@ preserve
         /// text(4100 46  "Uruguay" , place(e) size(5) color("`can2'") just(left) margin(l=0 r=1 t=4 b=2))
         /// text(2800 8  "Mexico" , place(e) size(5) color("`dia2'") just(left) margin(l=0 r=1 t=4 b=2))
 
-        legend(order(1 2 3 4 5 6 7 8 9 10 11 12) 
-        label(1 "SS (12-14 yrs)")  
-        label(2 "SS (14-16)") 
-        label(3 "SS (16-18)") 
-        label(4 "SS (18-20)") 
-        label(5 "AA (12-14 yrs)")  
-        label(6 "AA (14-16)") 
-        label(7 "AA (16-18)") 
-        label(8 "AA (18-20)") 
-        label(9 "SC (12-14 yrs)")  
-        label(10 "SC (14-16)") 
-        label(11 "SC (16-18)") 
-        label(12 "SC (18-20)") 		
-        cols(4) position(6) margin(t=0) size(3.5) symxsize(6) symysize(4) color("gs8")
+        legend(order(1 2 3 4 5 6 7 8 9 ) 
+        label(1 "SS (12-16 yrs)")  
+        label(2 "SS (16-20)") 
+        label(3 "SS (20-24)") 
+        label(4 "AA (12-16 yrs)")  
+        label(5 "AA (16-20)") 
+        label(6 "AA (20-24)") 
+        label(7 "SC (12-16 yrs)")  
+        label(8 "SC (16-20)") 
+        label(9 "SC (20-24)") 
+        cols(3) position(6) margin(t=0) size(3.5) symxsize(6) symysize(4) color("gs8")
         )
 
         name(bw_adj)
@@ -342,7 +322,262 @@ preserve
 	
 restore
 
+*/
 
+** Figure 3 PROFILES
+
+** Unadjusted spleen length
+**preserve
+		** 2-year age groups
+			gen agroups = .
+			replace agroups = 1 if aaexam >=6 & aaexam<8
+			replace agroups = 2 if aaexam >=8 & aaexam<10
+			replace agroups = 3 if aaexam >=10 & aaexam<12
+			replace agroups = 4 if aaexam >=12 & aaexam<14
+			replace agroups = 5 if aaexam >=14 & aaexam<16
+			replace agroups = 6 if aaexam >=16 & aaexam<18
+			replace agroups = 7 if aaexam >=18 & aaexam<20
+			replace agroups = 8 if aaexam >=20 & aaexam<22
+			replace agroups = 9 if aaexam >=22 & aaexam<24
+			replace agroups = 10 if aaexam >=24 & aaexam<27
+
+
+		sort geno sex aaexam 
+
+			#delimit ; 
+			label define agroups_ 	1 "6-8" 
+									2 "8-10" 
+									3 "10-12"
+									4 "12-14"
+									5 "14-16"
+									6 "16-18"
+									7 "18-20"
+									8 "20-22"
+									9 "22-24"
+									10 "24+"
+									, modify;
+			#delimit cr
+			label values agroups agroups_ 
+
+		** Collapse into 2 year windows - mostly because of AA limited numbers
+		gen part = 1
+		#delimit ; 
+		collapse 		(mean) sh_m=sheight sah_m=saheight 
+						(sum) sh_c = part 
+						(sd) sh_sd=sheight sah_sd=saheight
+						(p50) sh_p50=sheight sah_p50=saheight
+						(p25) sh_p25=sheight sah_p25=saheight
+						(p75) sh_p75=sheight sah_p75=saheight
+						(p5) sh_p5=sheight sah_p5=saheight
+						(p95) sh_p95=sheight sah_p95=saheight
+						, by(geno sex agroups);
+		#delimit cr
+	
+		* 95% CI
+		gen sh_cil = sh_m - 1.96 * (sh_sd/sh_c)
+		gen sh_ciu = sh_m + 1.96 * (sh_sd/sh_c)
+
+		** Smoothed metrics
+		bysort geno sex : asrol sh_m 	, stat(mean) window(agroups 3) gen(sm_mean)
+		bysort geno sex : asrol sh_cil 	, stat(mean) window(agroups 3) gen(sm_cil)
+		bysort geno sex : asrol sh_ciu 	, stat(mean) window(agroups 3) gen(sm_ciu)
+		bysort geno sex : asrol sh_p5 	, stat(mean) window(agroups 3) gen(sm_p5)
+		bysort geno sex : asrol sh_p25 	, stat(mean) window(agroups 3) gen(sm_p25)
+		bysort geno sex : asrol sh_p50 	, stat(mean) window(agroups 3) gen(sm_p50)
+		bysort geno sex : asrol sh_p75 	, stat(mean) window(agroups 3) gen(sm_p75)
+		bysort geno sex : asrol sh_p95 	, stat(mean) window(agroups 3) gen(sm_p95)
+
+/*
+		#delimit ;
+			gr twoway
+				/// SS female
+				(line sm_mean agroups if geno==2 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`blu1'%60") mlw(0.1) lc("`blu1'%60") lp("l") )
+				(rarea sm_ciu sm_cil agroups if geno==2 & sex==1 	, fc("`blu2'%20") lw(none) )
+				/// SS male
+				(line sm_mean agroups if geno==2 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`blu1'%60") mlw(0.1) lc("`blu1'%60") lp("-"))
+				(rarea sm_ciu sm_cil agroups if geno==2 & sex==2 	, fc("`blu2'%20") lw(none) )
+
+				/// AA female
+				(line sm_mean agroups if geno==1 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`red1'%60") mlw(0.1) lc("`red1'%60") lp("l") )
+				(rarea sm_ciu sm_cil agroups if geno==1 & sex==1 	, fc("`red2'%20") lw(none) )
+				/// AA male
+				(line sm_mean agroups if geno==1 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`red1'%60") mlw(0.1) lc("`red1'%60") lp("-"))
+				(rarea sm_ciu sm_cil agroups if geno==1 & sex==2 	, fc("`red2'%20") lw(none) )
+
+				/// SC female
+				(line sm_mean agroups if geno==3 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`ora1'%60") mlw(0.1) lc("`ora1'%60") lp("l") )
+				(rarea sm_ciu sm_cil agroups if geno==3 & sex==1 	, fc("`ora2'%20") lw(none) )
+				/// SC male
+				(line sm_mean agroups if geno==3 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`ora1'%60") mlw(0.1) lc("`ora1'%60") lp("-"))
+				(rarea sm_ciu sm_cil agroups if geno==3 & sex==2 	, fc("`ora2'%20") lw(none) )
+
+				,
+					plotregion(c(gs16) ic(gs16) ilw(thin) lw(thin)) 
+					graphregion(color(gs16) ic(gs16) ilw(thin) lw(thin)) 
+					ysize(16) xsize(12)
+
+					xlab(1(1)10
+					,
+					valuelabel labgap(1) labc(gs0) labs(3) tstyle(major_notick) nogrid glc(gs16) angle(45) format(%9.0f))
+					xscale( lw(vthin))
+					xtitle("Age (years)", size(3) color(gs0) margin(l=2 r=2 t=2 b=2))
+
+					ylab(
+					,
+					valuelabel labgap(1) labc(gs0) labs(3) tstyle(major_notick) nogrid glc(gs16) angle(0) format(%9.0f))
+					yscale( lw(vthin) )
+					ytitle("Spleen length (mm)", size(3) margin(l=2 r=2 t=2 b=2))
+					///ymtick(0(10)220)
+
+					legend(size(3) position(3) bm(t=1 b=1 l=1 r=0) cols(1) rows(6) nocolf
+					region(fcolor(gs16) lw(vthin) margin(l=0 r=0 t=0 b=0))
+					order(1 3 5 7 9 11)
+					lab(1 "SS female")
+					lab(3 "SS male")
+					lab(5 "AA female")
+					lab(7 "AA male")
+					lab(9 "SC female")
+					lab(11 "SC male")
+					)
+					name(profile_unadj)
+					;
+		#delimit cr
+restore
+
+/*
+
+** Adjusted spleen length
+preserve
+		** 2-year age groups
+			gen agroups = .
+			replace agroups = 1 if aaexam >=6 & aaexam<8
+			replace agroups = 2 if aaexam >=8 & aaexam<10
+			replace agroups = 3 if aaexam >=10 & aaexam<12
+			replace agroups = 4 if aaexam >=12 & aaexam<14
+			replace agroups = 5 if aaexam >=14 & aaexam<16
+			replace agroups = 6 if aaexam >=16 & aaexam<18
+			replace agroups = 7 if aaexam >=18 & aaexam<20
+			replace agroups = 8 if aaexam >=20 & aaexam<22
+			replace agroups = 9 if aaexam >=22 & aaexam<24
+			replace agroups = 10 if aaexam >=24 & aaexam<27
+
+
+		sort geno sex aaexam 
+
+			#delimit ; 
+			label define agroups_ 	1 "6-8" 
+									2 "8-10" 
+									3 "10-12"
+									4 "12-14"
+									5 "14-16"
+									6 "16-18"
+									7 "18-20"
+									8 "20-22"
+									9 "22-24"
+									10 "24+"
+									, modify;
+			#delimit cr
+			label values agroups agroups_ 
+
+		** Collapse into 2 year windows - mostly because of AA limited numbers
+		gen part = 1
+		collapse (mean) sh_m=sheight sah_m=saheight (sum) sh_c = part (sd) sh_sd=sheight sah_sd=saheight, by(geno sex agroups)
+
+		* 95% CI
+		gen sah_cil = sah_m - 1.96 * (sah_sd/sh_c)
+		gen sah_ciu = sah_m + 1.96 * (sah_sd/sh_c)
+
+		** Smoothed
+		bysort geno sex : asrol sah_m , stat(mean) window(agroups 3) gen(sm_mean)
+		bysort geno sex : asrol sah_cil , stat(mean) window(agroups 3) gen(sm_cil)
+		bysort geno sex : asrol sah_ciu , stat(mean) window(agroups 3) gen(sm_ciu)
+
+
+		#delimit ;
+			gr twoway
+				/// SS female
+				(line sm_mean agroups if geno==2 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`blu1'%60") mlw(0.1) lc("`blu1'%60") lp("l") )
+				(rarea sm_ciu sm_cil agroups if geno==2 & sex==1 	, fc("`blu2'%20") lw(none) )
+				/// SS male
+				(line sm_mean agroups if geno==2 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`blu1'%60") mlw(0.1) lc("`blu1'%60") lp("-"))
+				(rarea sm_ciu sm_cil agroups if geno==2 & sex==2 	, fc("`blu2'%20") lw(none) )
+
+				/// AA female
+				(line sm_mean agroups if geno==1 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`red1'%60") mlw(0.1) lc("`red1'%60") lp("l") )
+				(rarea sm_ciu sm_cil agroups if geno==1 & sex==1 	, fc("`red2'%20") lw(none) )
+				/// AA male
+				(line sm_mean agroups if geno==1 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`red1'%60") mlw(0.1) lc("`red1'%60") lp("-"))
+				(rarea sm_ciu sm_cil agroups if geno==1 & sex==2 	, fc("`red2'%20") lw(none) )
+
+				/// SC female
+				(line sm_mean agroups if geno==3 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`ora1'%60") mlw(0.1) lc("`ora1'%60") lp("l") )
+				(rarea sm_ciu sm_cil agroups if geno==3 & sex==1 	, fc("`ora2'%20") lw(none) )
+				/// SC male
+				(line sm_mean agroups if geno==3 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`ora1'%60") mlw(0.1) lc("`ora1'%60") lp("-"))
+				(rarea sm_ciu sm_cil agroups if geno==3 & sex==2 	, fc("`ora2'%20") lw(none) )
+
+				,
+					plotregion(c(gs16) ic(gs16) ilw(thin) lw(thin)) 
+					graphregion(color(gs16) ic(gs16) ilw(thin) lw(thin)) 
+					ysize(16) xsize(12)
+
+					xlab(1(1)10
+					,
+					valuelabel labgap(1) labc(gs0) labs(3) tstyle(major_notick) nogrid glc(gs16) angle(45) format(%9.0f))
+					xscale( lw(vthin))
+					xtitle("Age (years)", size(3) color(gs0) margin(l=2 r=2 t=2 b=2))
+
+					ylab(
+					,
+					valuelabel labgap(1) labc(gs0) labs(3) tstyle(major_notick) nogrid glc(gs16) angle(0) format(%9.0f))
+					yscale( lw(vthin) )
+					ytitle("Spleen length (mm)", size(3) margin(l=2 r=2 t=2 b=2))
+					///ymtick(0(10)220)
+
+					legend(size(3) position(3) bm(t=1 b=1 l=1 r=0) cols(1) rows(6) nocolf
+					region(fcolor(gs16) lw(vthin) margin(l=0 r=0 t=0 b=0))
+					order(1 3 5 7 9 11)
+					lab(1 "SS female")
+					lab(3 "SS male")
+					lab(5 "AA female")
+					lab(7 "AA male")
+					lab(9 "SC female")
+					lab(11 "SC male")
+					)
+					name(profile_adj)
+					;
+		#delimit cr
+restore
+
+
+/*
+** PDF Page for Figure 1
+
+** ------------------------------------------------------
+** PDF REGIONAL REPORT (COUNTS OF CONFIRMED CASES)
+** ------------------------------------------------------
+    putpdf begin, pagesize(letter) landscape font("Calibri Light", 10) margin(top,0.5cm) margin(bottom,0.25cm) margin(left,0.5cm) margin(right,0.25cm)
+** PAGE 1. INTRODUCTION
+    putpdf paragraph ,  font("Times New Roman", 11)
+    putpdf text ("Figure 1. ") , bold
+    putpdf text ("Spleen lengths by genotype in males and females, with shaded areas representing   ")
+    putpdf text ("(see note 1)"), bold 
+    putpdf text (" among 20 Caribbean countries and territories ") 
+    putpdf text ("(see note 2)"), bold
+    putpdf text (" since the start of the outbreak. ") 
+    putpdf text ("We present this information as a heatmap to visually summarise the situation as of $S_DATE. ") 
+    putpdf text ("The heatmap was created: (A) to highlight outbreak hotspots, and (B) to track locations that have seen small numbers of recent cases. ") 
+    putpdf text ("An extended period with no or sporadic isolated cases might be used as one of several ") 
+    putpdf text ("potential triggers needed before considering the easing of national COVID-19 control measures.")
+** PAGE 1. FIGURE OF DAILY COVID-19 COUNT
+    putpdf table f1 = (1,1), width(92%) border(all,nil) halign(center)
+    putpdf table f1(1,1)=image("`outputpath'/heatmap_newcases.png")
+
+
+** Save the PDF
+    local c_date = c(current_date)
+    local date_string = subinstr("`c_date'", " ", "", .)
+    putpdf save "`outputpath'/Figure_One_`date_string'", replace
 
 
 /*
@@ -375,7 +610,7 @@ tempfile regress
 save `regress', replace
 
 
-
+/*
 
 ** B. Count the number of observations and number of individuals
 gen nobs = 1
@@ -744,7 +979,7 @@ use `regress', clear
 keep if geno==1 | geno==2 | geno==3
 replace pid = pid+1000 if geno==3
 xtset pid 
-xtreg saheight c.aaexam geno if aaexam>=12 & aaexam<=20
+xtreg saheight c.aaexam geno if aaexam>=12 & aaexam<=22
 
 /// ** AA and SS only
 /// xtreg saheight c.aaexam##geno if aaexam>=12 & aaexam<=20 & geno<3
@@ -754,29 +989,33 @@ xtreg saheight c.aaexam geno if aaexam>=12 & aaexam<=20
 /// margins, dydx(geno) at(aaexam=(12(2)20)) vsquish
 
 ** AA, SS, and SC
-xtreg saheight c.aaexam##geno if aaexam>=12 & aaexam<=20 
-margins geno, at(aaexam=(12(2)20)) vsquish
+xtreg saheight c.aaexam##geno if aaexam>=12 & aaexam<=22 
+* genotype difference
+margins geno, at(aaexam=(12(2)22)) vsquish
 marginsplot, x(aaexam)
-** Test of differences at various ages
-margins, dydx(geno) at(aaexam=(12(2)20)) vsquish
+** Test of genotype differences at various ages
+margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
+** Test of age change for each genotype
+
+
 ** Baseline SC
-xtreg saheight c.aaexam##ib3.geno if aaexam>=12 & aaexam<=20 
+xtreg saheight c.aaexam##ib3.geno if aaexam>=12 & aaexam<=22 
 ** Test of differences at various ages
-margins, dydx(geno) at(aaexam=(12(2)20)) vsquish
+margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
 
 
-
+/*
 ** AA, SS, and SC : Restrict to >1 measurement
 bysort pid : gen counter = _n
-xtreg saheight c.aaexam##geno if aaexam>=12 & aaexam<=20 & counter>1
-margins geno, at(aaexam=(12(2)20)) vsquish
+xtreg saheight c.aaexam##geno if aaexam>=12 & aaexam<=22 & counter>1
+margins geno, at(aaexam=(12(2)22)) vsquish
 marginsplot, x(aaexam)
 ** Test of differences at various ages
-margins, dydx(geno) at(aaexam=(12(2)20)) vsquish
+margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
 ** Baseline SC
-xtreg saheight c.aaexam##ib3.geno if aaexam>=12 & aaexam<=20 
+xtreg saheight c.aaexam##ib3.geno if aaexam>=12 & aaexam<=22 
 ** Test of differences at various ages
-margins, dydx(geno) at(aaexam=(12(2)20)) vsquish
+margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
 
 
 

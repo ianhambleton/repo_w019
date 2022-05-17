@@ -82,24 +82,21 @@ rename Wtkg weight
 rename Htm height
 
 order sex dob geno weight height stat dostat doexam aaexam sheight senlarge, after(cid) 
-drop Name Sx gt Alpha HbF10y status totalobs R S T U
+drop cid Name Sx gt Alpha HbF10y status totalobs R S T U senlarge dostat
 
 label var pid "Participant ID"
-label var cid "Cohort ID"
 label var sex "Participant sex"
 label var dob "Date of birth"
 label var geno "Participant genotype"
 label var weight "Participant weight (kg)"
 label var height "Participant height (m)"
 label var stat "Participant status"
-label var dostat "Date of final participant status"
 label var doexam "Date of participant spleen examination"
 label var aaexam "Age at participant spleen examination (in years)"
 label var sheight "Spleen length (cm)" 
-label var senlarge "Spleen length below left costal margin (cm)" 
 
 label data "Spleen size: SCD cohort study Jamaica - AA controls" 
-save "`datapath'\spleen_aa", replace
+save "`datapath'\spleen_aa_old", replace
 
 
 
@@ -155,21 +152,18 @@ rename Wtkg weight
 rename Htm height
 
 order sex dob geno weight height stat dostat doexam aaexam sheight senlarge, after(cid) 
-drop Name Sx gt Alpha HbF10y status totalobs R S T U
+drop cid Name Sx gt Alpha HbF10y status totalobs R S T U senlarge dostat
 
 label var pid "Participant ID"
-label var cid "Cohort ID"
 label var sex "Participant sex"
 label var dob "Date of birth"
 label var geno "Participant genotype"
 label var weight "Participant weight (kg)"
 label var height "Participant height (m)"
 label var stat "Participant status"
-label var dostat "Date of final participant status"
 label var doexam "Date of participant spleen examination"
 label var aaexam "Age at participant spleen examination (in years)"
 label var sheight "Spleen length (cm)" 
-label var senlarge "Spleen length below left costal margin (cm)" 
 
 label data "Spleen size: SCD cohort study Jamaica - SS participants" 
 save "`datapath'\spleen_ss", replace
@@ -229,21 +223,18 @@ rename Wtkg weight
 rename Htm height
 
 order sex dob geno weight height stat dostat doexam aaexam sheight senlarge, after(cid) 
-drop Name Sx gt alpha HbF status totalobs
+drop cid Name Sx gt alpha HbF status totalobs senlarge dostat
 
 label var pid "Participant ID"
-label var cid "Cohort ID"
 label var sex "Participant sex"
 label var dob "Date of birth"
 label var geno "Participant genotype"
 label var weight "Participant weight (kg)"
 label var height "Participant height (m)"
 label var stat "Participant status"
-label var dostat "Date of final participant status"
 label var doexam "Date of participant spleen examination"
 label var aaexam "Age at participant spleen examination (in years)"
 label var sheight "Spleen length (cm)" 
-label var senlarge "Spleen length below left costal margin (cm)" 
 
 label data "Spleen size: SCD cohort study Jamaica - SC participants" 
 save "`datapath'\spleen_sc", replace
@@ -302,37 +293,21 @@ rename Wtkg weight
 rename Htm height
 
 order sex dob geno weight height stat dostat doexam aaexam sheight senlarge, after(cid) 
-drop Name Sx gt alpha HbF status totalobs R-AA
+drop cid Name Sx gt alpha HbF status totalobs R-AA senlarge dostat
 
 label var pid "Participant ID"
-label var cid "Cohort ID"
 label var sex "Participant sex"
 label var dob "Date of birth"
 label var geno "Participant genotype"
 label var weight "Participant weight (kg)"
 label var height "Participant height (m)"
 label var stat "Participant status"
-label var dostat "Date of final participant status"
 label var doexam "Date of participant spleen examination"
 label var aaexam "Age at participant spleen examination (in years)"
 label var sheight "Spleen length (cm)" 
-label var senlarge "Spleen length below left costal margin (cm)" 
 
 label data "Spleen size: SCD cohort study Jamaica - Alpha Thal participants" 
 save "`datapath'\spleen_athal", replace
-
-
-** Join the datasets
-use "`datapath'\spleen_aa", clear
-append using "`datapath'\spleen_ss"
-append using "`datapath'\spleen_sc"
-append using "`datapath'\spleen_athal"
-label data "Spleen size: SCD cohort study Jamaica - AA, SS, SC, S-beta-thal participants" 
-save "`datapath'\spleen_aass", replace
-
-
-
-
 
 
 
