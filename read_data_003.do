@@ -1,6 +1,6 @@
 ** HEADER -----------------------------------------------------
 **  DO-FILE METADATA
-    //  algorithm name			        read_data_001.do
+    //  algorithm name			        read_data_003.do
     //  project:		                SCD Spleeen size
     //  analysts:				        Ian HAMBLETON
     // 	date last modified	    	    26-APR-2022
@@ -29,19 +29,19 @@
 
     ** Close any open log file and open a new log file
     capture log close
-    log using "`logpath'\read_data_001", replace
+    log using "`logpath'\read_data_003", replace
 ** HEADER -----------------------------------------------------
 
 ** ---------------------------------------------------
-** LOAD AND PREPARE AA FILE
+** LOAD AND PREPARE SS FILE
 ** ---------------------------------------------------
-import excel using "`datapath'/Spleen length AA masterlist CORRECT IRH.xlsx", first sheet("Sheet1") clear
+import excel using "`datapath'/Spleen length including 1103 measrements and 1036 'ns' Total 2139.xlsx", first sheet("Sheet1") clear
 
 ** Variable organization
 rename Pt pid
-replace pid = pid+500
 rename Coh cid
 order pid cid 
+drop if pid==. 
 
 * participant gender
 gen sex = .
@@ -54,7 +54,7 @@ label values sex sex_
 rename DoB dob
 
 * participant genotype
-gen geno = 1
+gen geno = 2
 label define geno_ 1 "aa" 2 "ss" 3 "sc" 4 "sb+" 5 "sb0",modify
 label values geno geno_
 
@@ -67,22 +67,46 @@ label define stat_ 1 "alive" 2 "died" 3 "emigration",modify
 label values stat stat_
 
 * participant date of status
-* rename dtstatus dostat
+rename dtstatus dostat
 
 * participant date of / age at spleen examination
+** 31-MAY-2022 : Two new errors
 rename dtexam doexam
-rename Ageexam aaexam
+rename ageex aaexam
+replace doexam = d(01feb1998) if pid==43 & doexam==d(01feb2098)
+replace doexam = d(01feb1998) if pid==75 & doexam==d(01feb2098)
+gen aaexam2 = (doexam - dob)/365.25
+order aaexam2, after(aaexam)
+drop aaexam
+rename aaexam2 aaexam
 
-* spleen volume
-rename spleen sheight 
-* rename splcm senlarge
+* spleen length
+rename clinispl senlarge
+gen t1 = spleenmm
+replace t1 = "" if spleenmm=="Not seen"
+gen sheight_orig = real(t1) 
+gen sheight = sheight_orig 
+replace sheight = . if sheight_orig==. 
+replace sheight = . if sheight_orig<40 
 
 * participant weight and height
-rename Wtkg weight
-rename Htm height
+/// rename Wtkg weight
+/// rename Htm height
 
-order sex dob geno weight height stat doexam aaexam sheight, after(cid) 
-drop cid Name Sx gt Alpha status
+** 31 MAY 2022 : TWO NEW ERRORS
+** ID 33 Ian CAMPBELL
+replace pid = 33 if Name == "CAMPBELL Ian"
+replace cid = 104 if Name == "CAMPBELL Ian"
+replace dob = d(12aug1975) if Name == "CAMPBELL Ian"
+replace dostat = d(28aug2021) if Name == "CAMPBELL Ian"
+** ID 64 Sophia CAMPBELL
+replace pid = 35 if Name == "CAMPBELL Sophia"
+replace cid = 64 if Name == "CAMPBELL Sophia"
+replace dob = d(02dec1974) if Name == "CAMPBELL Sophia"
+replace dostat = d(25aug2021) if Name == "CAMPBELL Sophia"
+
+order sex dob geno weight height stat dostat doexam aaexam sheight senlarge, after(cid) 
+drop cid Name Sx gt Alpha HbF10y status Obs R senlarge dostat spleenmm t1 sheight_orig
 
 label var pid "Participant ID"
 label var sex "Participant sex"
@@ -95,21 +119,17 @@ label var doexam "Date of participant spleen examination"
 label var aaexam "Age at participant spleen examination (in years)"
 label var sheight "Spleen length (cm)" 
 
-label data "Spleen size: SCD cohort study Jamaica - AA controls" 
-save "`datapath'\spleen_aa_new", replace
+label data "Spleen size: SCD cohort study Jamaica - SS participants" 
+save "`datapath'\spleen_ss_new", replace
 
 
-** 30-MAY-2022
-** RUN THHIS NOW in <read_data_003.do>
 ** Join the datasets
-/// use "`datapath'\spleen_aa_new", clear
-/// append using "`datapath'\spleen_ss"
-/// append using "`datapath'\spleen_sc"
-/// append using "`datapath'\spleen_athal"
-/// label data "Spleen size: SCD cohort study Jamaica - AA, SS, SC, S-beta-thal participants" 
-/// save "`datapath'\spleen_all", replace
-
-
+use "`datapath'\spleen_aa_new", clear
+append using "`datapath'\spleen_ss_new"
+append using "`datapath'\spleen_sc"
+append using "`datapath'\spleen_athal"
+label data "Spleen size: SCD cohort study Jamaica - AA, SS, SC, S-beta-thal participants" 
+save "`datapath'\spleen_all", replace
 
 
 

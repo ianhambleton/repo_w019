@@ -166,7 +166,7 @@ label var aaexam "Age at participant spleen examination (in years)"
 label var sheight "Spleen length (cm)" 
 
 label data "Spleen size: SCD cohort study Jamaica - SS participants" 
-save "`datapath'\spleen_ss", replace
+save "`datapath'\spleen_ss_old", replace
 
 
 

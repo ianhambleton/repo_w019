@@ -1,6 +1,6 @@
 ** HEADER -----------------------------------------------------
 **  DO-FILE METADATA
-    //  algorithm name			        analysis_001.do
+    //  algorithm name			        analysis_004.do
     //  project:		                SCD Spleeen size
     //  analysts:				        Ian HAMBLETON
     // 	date last modified	    	    26-APR-2022
@@ -29,7 +29,7 @@
 
     ** Close any open log file and open a new log file
     capture log close
-    log using "`logpath'\analysis_001", replace
+    log using "`logpath'\analysis_004", replace
 ** HEADER -----------------------------------------------------
 
 ** ---------------------------------------------------
@@ -37,12 +37,14 @@
 ** ---------------------------------------------------
 use "`datapath'\spleen_all", clear
 
+** Spleen lengths used for different purposes
+
 ** Spleen size adjusted for height in metres
 gen saheight = sheight / height
 order saheight , after(sheight)
 label var saheight "Spleen length divided by height (m)"
 
-
+/*
 
 
 ** Color scheme
@@ -83,7 +85,7 @@ local sc1 `r(p9)'
 local sc2 `r(p10)'
 local sc3 `r(p11)'
 local sc4 `r(p12)'
-/*
+
 #delimit ;
 	gr twoway
         /// AA
@@ -1176,9 +1178,11 @@ putdocx append "`outputpath'/genotype_tables" taa tsc tatp tat0
 
 
 
+** THE REGRESSION HAS A FEW COMPLICATIONS
+**
+** There are many missing events
 
-
-*/
+*/	
 
 
 ** Regression for spleen volume by age
@@ -1195,12 +1199,16 @@ xtreg saheight c.aaexam geno if aaexam>=12 & aaexam<=22
 /// ** Test of differences at various ages
 /// margins, dydx(geno) at(aaexam=(12(2)20)) vsquish
 
+
 ** XTREG
+
+
+** Adjusted 
 ** AA, SS, and SC
 xtreg saheight c.aaexam##geno if aaexam>=12 & aaexam<=22 
 	* genotype difference
 	margins geno, at(aaexam=(12(2)22)) vsquish
-	marginsplot, x(aaexam) name(xtreg)
+	marginsplot, x(aaexam) name(xtreg_adj)
 	** Test of genotype differences at various ages
 	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
 	** Test of age change for each genotype
@@ -1209,15 +1217,56 @@ xtreg saheight c.aaexam##ib3.geno if aaexam>=12 & aaexam<=22
 	** Test of differences at various ages
 	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
 
-
-
-** TOBIT: Censored regression - censored at lower limit spleen length of 40mm
-xttobit saheight c.aaexam##geno if aaexam>=12 & aaexam<=22 , ll(40)
+** UNadjusted
+xtreg sheight c.aaexam##geno if aaexam>=12 & aaexam<=22 
+	* genotype difference
 	margins geno, at(aaexam=(12(2)22)) vsquish
-	marginsplot, x(aaexam) name(tobit)
+	marginsplot, x(aaexam) name(xtreg_unadj) ylab(40(20)140)
 	** Test of genotype differences at various ages
 	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
 
+
+
+
+
+** ALL SS MISSING DATA CONVERTED TO N=39
+		gen sheight_regress = 39 if sheight==. & geno==2
+		order sheight_regress , after(sheight)
+		** New outcome variable with cutoff for spleen length adjusted for height
+		** Cut off for original spleen length = 39
+		drop sheight_regress
+		gen sheight_tobit = sheight
+		order sheight_tobit, after(sheight)
+		replace sheight_tobit = 39 if sheight==.
+		replace sheight_tobit = 39 if sheight<40
+		** We now create the adjusted height, and note the new cutpoint
+		** The cutpoint, though, becomes tricky
+		bysort pid : egen t1 = min(height)
+		gen height_tobit = height
+		replace height_tobit = t1 if height==.
+		gen saheight_tobit = sheight_tobit / height_tobit
+		order saheight_tobit, after(saheight)
+		drop t1
+
+
+
+** TOBIT: Censored regression - censored at lower limit spleen length of 40mm
+xttobit sheight c.aaexam##geno if aaexam>=12 & aaexam<=22 , ll(39)
+	margins geno, at(aaexam=(12(2)22)) vsquish
+	marginsplot, x(aaexam) name(tobit_unadj_miss) ylab(40(20)140)
+	** Test of genotype differences at various ages
+	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
+
+xttobit sheight_tobit c.aaexam##geno if aaexam>=12 & aaexam<=22 , ll(39)
+	margins geno, at(aaexam=(12(2)22)) vsquish
+	marginsplot, x(aaexam) name(tobit_unadj_39) ylab(40(20)140)
+	** Test of genotype differences at various ages
+	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
+
+
+
+
+/*
 ** SEM: Censored regression - censored at lower limit spleen length of 40mm
 gsem saheight <- c.aaexam##geno if aaexam>=12 & aaexam<=22 , family(gaussian, lcensored(40))
 	margins geno, at(aaexam=(12(2)22)) vsquish
