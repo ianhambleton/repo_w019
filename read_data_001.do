@@ -183,6 +183,7 @@ rename Pt pid
 rename Coh cid
 order pid cid 
 drop if pid==. 
+replace pid = pid+2000
 
 * participant gender
 gen sex = .
@@ -252,6 +253,7 @@ rename Pt pid
 rename Coh cid
 order pid cid 
 drop if pid==. 
+replace pid = pid+3000
 
 * participant gender
 gen sex = .

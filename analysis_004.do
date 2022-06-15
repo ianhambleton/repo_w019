@@ -44,7 +44,6 @@ gen saheight = sheight / height
 order saheight , after(sheight)
 label var saheight "Spleen length divided by height (m)"
 
-/*
 
 
 ** Color scheme
@@ -85,6 +84,9 @@ local sc1 `r(p9)'
 local sc2 `r(p10)'
 local sc3 `r(p11)'
 local sc4 `r(p12)'
+
+
+/*
 
 #delimit ;
 	gr twoway
@@ -170,7 +172,6 @@ local sc4 `r(p12)'
 			name(spleen_length_adj)
             ;
 #delimit cr
-
 
 
 
@@ -819,19 +820,22 @@ tempfile regress
 save `regress', replace
 
 
-/*
 
-** B. Count the number of observations and number of individuals
+/*
+** B. Count the number of observations (nobs) and number of individuals (nparts)
 gen nobs = 1
 sort pid agroups
 egen npart1 = group(pid agroups)
 gen npart = npart1 - npart1[_n-1]
 replace npart = 1 if _n==1
 drop npart1
+** Count the number of observations for which the spleen was scannable
+gen navail = 1 if sheight<.
 
 #delimit ; 
 		collapse 	(sum) sheight_obs=nobs
 					(sum) sheight_par=npart
+					(sum) sheight_av=navail
 					(mean) sheight_m=sheight 
 					(sd) sheight_sd=sheight 
 					(p50) sheight_p50=sheight 
@@ -846,9 +850,10 @@ drop npart1
 fillin geno sex agroup
 
 
-
-
+** ----------------------------------------------------
 ** B. Word document
+** ----------------------------------------------------
+
 
 ** ----------------------------------------------------
 ** SS table
@@ -858,8 +863,9 @@ preserve
 	sort sex agroups 
 	rename sex Sex
 	rename agroups Age
-	rename sheight_obs Observations
 	rename sheight_par Participants
+	rename sheight_obs Scanned
+	rename sheight_av Available
 	rename sheight_m Mean
 	rename sheight_sd SD
 	rename sheight_p50 Median
@@ -874,7 +880,7 @@ preserve
 		putdocx text ("Table "), bold
 		putdocx text ("Spleen length among SS participants"), 
 		** Place data 
-		putdocx table ss = data("Sex Age Observations Participants Mean SD Median p5 p95"), varnames 
+		putdocx table ss = data("Sex Age Participants Scanned Available Mean SD Median p5 p95"), varnames 
 		** Line colors + Shadng
 		putdocx table ss(2/10,.), border(bottom, single, "e6e6e6")
 		putdocx table ss(12/20,.), border(bottom, single, "e6e6e6")
@@ -883,13 +889,14 @@ preserve
 		** Column and Row headers
 		putdocx table ss(1,1) = ("Sex"),  font(calibri light,10, "000000")
 		putdocx table ss(1,2) = ("Age Group"),  font(calibri light,10, "000000")
-		putdocx table ss(1,3) = ("Observations"),  font(calibri light,10, "000000")
-		putdocx table ss(1,4) = ("Participants"),  font(calibri light,10, "000000")
-		putdocx table ss(1,5) = ("Mean"),  font(calibri light,10, "000000")
-		putdocx table ss(1,6) = ("SD"),  font(calibri light,10, "000000")
-		putdocx table ss(1,7) = ("Median"),  font(calibri light,10, "000000")
-		putdocx table ss(1,8) = ("5th percentile"),  font(calibri light,10, "000000")
-		putdocx table ss(1,9) = ("95th percentile"),  font(calibri light,10, "000000")
+		putdocx table ss(1,3) = ("Participants"),  font(calibri light,10, "000000")
+		putdocx table ss(1,4) = ("Observations"),  font(calibri light,10, "000000")
+		putdocx table ss(1,5) = ("Available"),  font(calibri light,10, "000000")
+		putdocx table ss(1,6) = ("Mean"),  font(calibri light,10, "000000")
+		putdocx table ss(1,7) = ("SD"),  font(calibri light,10, "000000")
+		putdocx table ss(1,8) = ("Median"),  font(calibri light,10, "000000")
+		putdocx table ss(1,9) = ("5th percentile"),  font(calibri light,10, "000000")
+		putdocx table ss(1,10) = ("95th percentile"),  font(calibri light,10, "000000")
 		///putdocx table ss(2,1) = ("Female"),  font(calibri light,10, "000000")
 		putdocx table ss(3,1) = (" "),  font(calibri light,10, "000000")
 		putdocx table ss(4,1) = (" "),  font(calibri light,10, "000000")
@@ -924,8 +931,9 @@ preserve
 	sort sex agroups 
 	rename sex Sex
 	rename agroups Age
-	rename sheight_obs Observations
 	rename sheight_par Participants
+	rename sheight_obs Scanned
+	rename sheight_av Available
 	rename sheight_m Mean
 	rename sheight_sd SD
 	rename sheight_p50 Median
@@ -940,7 +948,7 @@ preserve
 		putdocx text ("Table "), bold
 		putdocx text ("Spleen length among SC participants"), 
 		** Place data 
-		putdocx table ss = data("Sex Age Observations Participants Mean SD Median p5 p95"), varnames 
+		putdocx table ss = data("Sex Age Participants Scanned Available Mean SD Median p5 p95"), varnames 
 		** Line colors + Shadng
 		putdocx table ss(2/10,.), border(bottom, single, "e6e6e6")
 		putdocx table ss(12/20,.), border(bottom, single, "e6e6e6")
@@ -949,13 +957,14 @@ preserve
 		** Column and Row headers
 		putdocx table ss(1,1) = ("Sex"),  font(calibri light,10, "000000")
 		putdocx table ss(1,2) = ("Age Group"),  font(calibri light,10, "000000")
-		putdocx table ss(1,3) = ("Observations"),  font(calibri light,10, "000000")
-		putdocx table ss(1,4) = ("Participants"),  font(calibri light,10, "000000")
-		putdocx table ss(1,5) = ("Mean"),  font(calibri light,10, "000000")
-		putdocx table ss(1,6) = ("SD"),  font(calibri light,10, "000000")
-		putdocx table ss(1,7) = ("Median"),  font(calibri light,10, "000000")
-		putdocx table ss(1,8) = ("5th percentile"),  font(calibri light,10, "000000")
-		putdocx table ss(1,9) = ("95th percentile"),  font(calibri light,10, "000000")
+		putdocx table ss(1,3) = ("Participants"),  font(calibri light,10, "000000")
+		putdocx table ss(1,4) = ("Observations"),  font(calibri light,10, "000000")
+		putdocx table ss(1,5) = ("Available"),  font(calibri light,10, "000000")
+		putdocx table ss(1,6) = ("Mean"),  font(calibri light,10, "000000")
+		putdocx table ss(1,7) = ("SD"),  font(calibri light,10, "000000")
+		putdocx table ss(1,8) = ("Median"),  font(calibri light,10, "000000")
+		putdocx table ss(1,9) = ("5th percentile"),  font(calibri light,10, "000000")
+		putdocx table ss(1,10) = ("95th percentile"),  font(calibri light,10, "000000")
 		///putdocx table ss(2,1) = ("Female"),  font(calibri light,10, "000000")
 		putdocx table ss(3,1) = (" "),  font(calibri light,10, "000000")
 		putdocx table ss(4,1) = (" "),  font(calibri light,10, "000000")
@@ -989,8 +998,9 @@ preserve
 	sort sex agroups 
 	rename sex Sex
 	rename agroups Age
-	rename sheight_obs Observations
 	rename sheight_par Participants
+	rename sheight_obs Scanned
+	rename sheight_av Available
 	rename sheight_m Mean
 	rename sheight_sd SD
 	rename sheight_p50 Median
@@ -1005,7 +1015,7 @@ preserve
 		putdocx text ("Table "), bold
 		putdocx text ("Spleen length among Alpha-thal + participants"), 
 		** Place data 
-		putdocx table ss = data("Sex Age Observations Participants Mean SD Median p5 p95"), varnames 
+		putdocx table ss = data("Sex Age Participants Scanned Available Mean SD Median p5 p95"), varnames 
 		** Line colors + Shadng
 		putdocx table ss(2/10,.), border(bottom, single, "e6e6e6")
 		putdocx table ss(12/20,.), border(bottom, single, "e6e6e6")
@@ -1014,13 +1024,14 @@ preserve
 		** Column and Row headers
 		putdocx table ss(1,1) = ("Sex"),  font(calibri light,10, "000000")
 		putdocx table ss(1,2) = ("Age Group"),  font(calibri light,10, "000000")
-		putdocx table ss(1,3) = ("Observations"),  font(calibri light,10, "000000")
-		putdocx table ss(1,4) = ("Participants"),  font(calibri light,10, "000000")
-		putdocx table ss(1,5) = ("Mean"),  font(calibri light,10, "000000")
-		putdocx table ss(1,6) = ("SD"),  font(calibri light,10, "000000")
-		putdocx table ss(1,7) = ("Median"),  font(calibri light,10, "000000")
-		putdocx table ss(1,8) = ("5th percentile"),  font(calibri light,10, "000000")
-		putdocx table ss(1,9) = ("95th percentile"),  font(calibri light,10, "000000")
+		putdocx table ss(1,3) = ("Participants"),  font(calibri light,10, "000000")
+		putdocx table ss(1,4) = ("Observations"),  font(calibri light,10, "000000")
+		putdocx table ss(1,5) = ("Available"),  font(calibri light,10, "000000")
+		putdocx table ss(1,6) = ("Mean"),  font(calibri light,10, "000000")
+		putdocx table ss(1,7) = ("SD"),  font(calibri light,10, "000000")
+		putdocx table ss(1,8) = ("Median"),  font(calibri light,10, "000000")
+		putdocx table ss(1,9) = ("5th percentile"),  font(calibri light,10, "000000")
+		putdocx table ss(1,10) = ("95th percentile"),  font(calibri light,10, "000000")
 		///putdocx table ss(2,1) = ("Female"),  font(calibri light,10, "000000")
 		putdocx table ss(3,1) = (" "),  font(calibri light,10, "000000")
 		putdocx table ss(4,1) = (" "),  font(calibri light,10, "000000")
@@ -1052,8 +1063,9 @@ preserve
 	sort sex agroups 
 	rename sex Sex
 	rename agroups Age
-	rename sheight_obs Observations
 	rename sheight_par Participants
+	rename sheight_obs Scanned
+	rename sheight_av Available
 	rename sheight_m Mean
 	rename sheight_sd SD
 	rename sheight_p50 Median
@@ -1068,7 +1080,7 @@ preserve
 		putdocx text ("Table "), bold
 		putdocx text ("Spleen length among Alpha-thal 0 participants"), 
 		** Place data 
-		putdocx table ss = data("Sex Age Observations Participants Mean SD Median p5 p95"), varnames 
+		putdocx table ss = data("Sex Age Participants Scanned Available Mean SD Median p5 p95"), varnames 
 		** Line colors + Shadng
 		putdocx table ss(2/10,.), border(bottom, single, "e6e6e6")
 		putdocx table ss(12/20,.), border(bottom, single, "e6e6e6")
@@ -1077,13 +1089,14 @@ preserve
 		** Column and Row headers
 		putdocx table ss(1,1) = ("Sex"),  font(calibri light,10, "000000")
 		putdocx table ss(1,2) = ("Age Group"),  font(calibri light,10, "000000")
-		putdocx table ss(1,3) = ("Observations"),  font(calibri light,10, "000000")
-		putdocx table ss(1,4) = ("Participants"),  font(calibri light,10, "000000")
-		putdocx table ss(1,5) = ("Mean"),  font(calibri light,10, "000000")
-		putdocx table ss(1,6) = ("SD"),  font(calibri light,10, "000000")
-		putdocx table ss(1,7) = ("Median"),  font(calibri light,10, "000000")
-		putdocx table ss(1,8) = ("5th percentile"),  font(calibri light,10, "000000")
-		putdocx table ss(1,9) = ("95th percentile"),  font(calibri light,10, "000000")
+		putdocx table ss(1,3) = ("Participants"),  font(calibri light,10, "000000")
+		putdocx table ss(1,4) = ("Observations"),  font(calibri light,10, "000000")
+		putdocx table ss(1,5) = ("Available"),  font(calibri light,10, "000000")
+		putdocx table ss(1,6) = ("Mean"),  font(calibri light,10, "000000")
+		putdocx table ss(1,7) = ("SD"),  font(calibri light,10, "000000")
+		putdocx table ss(1,8) = ("Median"),  font(calibri light,10, "000000")
+		putdocx table ss(1,9) = ("5th percentile"),  font(calibri light,10, "000000")
+		putdocx table ss(1,10) = ("95th percentile"),  font(calibri light,10, "000000")
 		///putdocx table ss(2,1) = ("Female"),  font(calibri light,10, "000000")
 		putdocx table ss(3,1) = (" "),  font(calibri light,10, "000000")
 		putdocx table ss(4,1) = (" "),  font(calibri light,10, "000000")
@@ -1104,6 +1117,7 @@ preserve
 		putdocx table ss(19,1) = (" "),  font(calibri light,10, "000000")
 		putdocx table ss(20,1) = (" "),  font(calibri light,10, "000000")
 		putdocx table ss(21,1) = (" "),  font(calibri light,10, "000000")
+
 		putdocx save tat0 , replace
 restore
 
@@ -1117,8 +1131,9 @@ preserve
 	sort sex agroups 
 	rename sex Sex
 	rename agroups Age
-	rename sheight_obs Observations
 	rename sheight_par Participants
+	rename sheight_obs Scanned
+	rename sheight_av Available
 	rename sheight_m Mean
 	rename sheight_sd SD
 	rename sheight_p50 Median
@@ -1133,7 +1148,7 @@ preserve
 		putdocx text ("Table "), bold
 		putdocx text ("Spleen length among AA participants"), 
 		** Place data 
-		putdocx table ss = data("Sex Age Observations Participants Mean SD Median p5 p95"), varnames 
+		putdocx table ss = data("Sex Age Participants Scanned Available Mean SD Median p5 p95"), varnames 
 		** Line colors + Shadng
 		putdocx table ss(2/10,.), border(bottom, single, "e6e6e6")
 		putdocx table ss(12/20,.), border(bottom, single, "e6e6e6")
@@ -1142,13 +1157,14 @@ preserve
 		** Column and Row headers
 		putdocx table ss(1,1) = ("Sex"),  font(calibri light,10, "000000")
 		putdocx table ss(1,2) = ("Age Group"),  font(calibri light,10, "000000")
-		putdocx table ss(1,3) = ("Observations"),  font(calibri light,10, "000000")
-		putdocx table ss(1,4) = ("Participants"),  font(calibri light,10, "000000")
-		putdocx table ss(1,5) = ("Mean"),  font(calibri light,10, "000000")
-		putdocx table ss(1,6) = ("SD"),  font(calibri light,10, "000000")
-		putdocx table ss(1,7) = ("Median"),  font(calibri light,10, "000000")
-		putdocx table ss(1,8) = ("5th percentile"),  font(calibri light,10, "000000")
-		putdocx table ss(1,9) = ("95th percentile"),  font(calibri light,10, "000000")
+		putdocx table ss(1,3) = ("Participants"),  font(calibri light,10, "000000")
+		putdocx table ss(1,4) = ("Observations"),  font(calibri light,10, "000000")
+		putdocx table ss(1,5) = ("Available"),  font(calibri light,10, "000000")
+		putdocx table ss(1,6) = ("Mean"),  font(calibri light,10, "000000")
+		putdocx table ss(1,7) = ("SD"),  font(calibri light,10, "000000")
+		putdocx table ss(1,8) = ("Median"),  font(calibri light,10, "000000")
+		putdocx table ss(1,9) = ("5th percentile"),  font(calibri light,10, "000000")
+		putdocx table ss(1,10) = ("95th percentile"),  font(calibri light,10, "000000")
 		///putdocx table ss(2,1) = ("Female"),  font(calibri light,10, "000000")
 		putdocx table ss(3,1) = (" "),  font(calibri light,10, "000000")
 		putdocx table ss(4,1) = (" "),  font(calibri light,10, "000000")
@@ -1169,6 +1185,7 @@ preserve
 		putdocx table ss(19,1) = (" "),  font(calibri light,10, "000000")
 		putdocx table ss(20,1) = (" "),  font(calibri light,10, "000000")
 		putdocx table ss(21,1) = (" "),  font(calibri light,10, "000000")
+
 		putdocx save taa , replace
 restore
 
@@ -1176,101 +1193,159 @@ restore
 ** Append the TABLES
 putdocx append "`outputpath'/genotype_tables" taa tsc tatp tat0
 
+*/
 
 
 ** THE REGRESSION HAS A FEW COMPLICATIONS
-**
-** There are many missing events
-
-*/	
 
 
 ** Regression for spleen volume by age
 use `regress', clear
 keep if geno==1 | geno==2 | geno==3
-replace pid = pid+1000 if geno==3
+sort pid doexam 
+bysort pid : ipolate height doexam , epolate gen(height_ip)
+
+** Outcome variable
+gen saheight_ip = sheight_ip / height_ip 
+** Censort variable = 1 if sheight_ip == 45
+gen lcensor = 0 
+replace lcensor = 1 if sheight_ip == 45 
+gen lcensor_val = 45 / height_ip 
+
+
+** Spleen length = 45 unadjusted for height if the spleen is unmeasurable
+** We need to adjust this down so that a sensible lower bound exists for adjusted spleen length
+** and which then allows for an adjusted figure to be used
+gen ayear = int(aaexam)
+table (geno ayear), stat(mean height)
+bysort geno ayear : egen mht = mean(height)
+order geno ayear mht, after(height)
+
+** Add AA and SC to outcome
+replace sheight_ip = sheight if geno==1 | geno==3
+gen saheight_reg = sheight_ip / height_ip
+order height_ip saheight_ip lcensor lcensor_val saheight_reg, after(sheight_ip) 
+
+sort pid doexam
 xtset pid 
-xtreg saheight c.aaexam geno if aaexam>=12 & aaexam<=22
 
-/// ** AA and SS only
-/// xtreg saheight c.aaexam##geno if aaexam>=12 & aaexam<=20 & geno<3
-/// margins geno, at(aaexam=(12(2)20)) vsquish
-/// marginsplot, x(aaexam)
-/// ** Test of differences at various ages
-/// margins, dydx(geno) at(aaexam=(12(2)20)) vsquish
+/// ** XTREG. No height adjustment
+/// xtreg saheight_reg c.aaexam##geno if aaexam>=12 & aaexam<=22 
+/// 	* genotype difference
+/// 	margins geno, at(aaexam=(12(2)22)) vsquish
+/// 	marginsplot, x(aaexam) name(xtreg)  ylab(0(20)80)
+/// 	** Test of genotype differences at various ages
+/// 	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
 
-
-** XTREG
-
-
-** Adjusted 
-** AA, SS, and SC
-xtreg saheight c.aaexam##geno if aaexam>=12 & aaexam<=22 
-	* genotype difference
+** FINAL TOBIT MODEL
+** TOBIT: Adjusted for height
+* Relative to AA
+xttobit saheight_reg c.aaexam##geno if aaexam>=12 & aaexam<=22 , ll(lcensor_val)
 	margins geno, at(aaexam=(12(2)22)) vsquish
-	marginsplot, x(aaexam) name(xtreg_adj)
+	marginsplot, x(aaexam) name(tobit)  ylab(0(20)80)
 	** Test of genotype differences at various ages
 	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
-	** Test of age change for each genotype
-** Baseline SC
-xtreg saheight c.aaexam##ib3.geno if aaexam>=12 & aaexam<=22 
+** Relative to SC
+xttobit saheight_reg c.aaexam##ib3.geno if aaexam>=12 & aaexam<=22 , ll(lcensor_val)
 	** Test of differences at various ages
 	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
 
-** UNadjusted
-xtreg sheight c.aaexam##geno if aaexam>=12 & aaexam<=22 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+/*
+** XTREG. No height adjustment
+xtreg sheight_ip c.aaexam##geno if aaexam>=12 & aaexam<=22 
 	* genotype difference
 	margins geno, at(aaexam=(12(2)22)) vsquish
 	marginsplot, x(aaexam) name(xtreg_unadj) ylab(40(20)140)
 	** Test of genotype differences at various ages
 	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
 
-
-
-
-
-** ALL SS MISSING DATA CONVERTED TO N=39
-		gen sheight_regress = 39 if sheight==. & geno==2
-		order sheight_regress , after(sheight)
-		** New outcome variable with cutoff for spleen length adjusted for height
-		** Cut off for original spleen length = 39
-		drop sheight_regress
-		gen sheight_tobit = sheight
-		order sheight_tobit, after(sheight)
-		replace sheight_tobit = 39 if sheight==.
-		replace sheight_tobit = 39 if sheight<40
-		** We now create the adjusted height, and note the new cutpoint
-		** The cutpoint, though, becomes tricky
-		bysort pid : egen t1 = min(height)
-		gen height_tobit = height
-		replace height_tobit = t1 if height==.
-		gen saheight_tobit = sheight_tobit / height_tobit
-		order saheight_tobit, after(saheight)
-		drop t1
-
-
-
-** TOBIT: Censored regression - censored at lower limit spleen length of 40mm
-xttobit sheight c.aaexam##geno if aaexam>=12 & aaexam<=22 , ll(39)
+** TOBIT: No height adjustment
+xttobit sheight_ip c.aaexam##geno if aaexam>=12 & aaexam<=22 , ll(45)
 	margins geno, at(aaexam=(12(2)22)) vsquish
-	marginsplot, x(aaexam) name(tobit_unadj_miss) ylab(40(20)140)
+	marginsplot, x(aaexam) name(tobit_unadj)  ylab(40(20)140)
 	** Test of genotype differences at various ages
 	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
 
-xttobit sheight_tobit c.aaexam##geno if aaexam>=12 & aaexam<=22 , ll(39)
+** XTREG. Adjusted for height
+xtreg sheight_ip c.aaexam##geno c.height_ip if aaexam>=12 & aaexam<=22 
+	* genotype difference
 	margins geno, at(aaexam=(12(2)22)) vsquish
-	marginsplot, x(aaexam) name(tobit_unadj_39) ylab(40(20)140)
+	marginsplot, x(aaexam) name(xtreg_unadj_ht) ylab(40(20)140)
 	** Test of genotype differences at various ages
 	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
+
+** TOBIT: Adjusted for height
+xttobit sheight_ip c.aaexam##geno c.height_ip if aaexam>=12 & aaexam<=22 , ll(45)
+	margins geno, at(aaexam=(12(2)22)) vsquish
+	marginsplot, x(aaexam) name(tobit_unadj_ht)  ylab(40(20)140)
+	** Test of genotype differences at various ages
+	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
+
+*/
+** Adjusted 
+xtreg saheight_ip c.aaexam##geno height_ip if aaexam>=12 & aaexam<=22 
+	* genotype difference
+	margins geno, at(aaexam=(12(2)22)) vsquish
+	marginsplot, x(aaexam) name(xtreg_adj) ylab(0(20)100)
+	** Test of genotype differences at various ages
+	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish 
+	** Test of age change for each genotype
+** Baseline SC
+xtreg saheight_ip c.aaexam##ib3.geno if aaexam>=12 & aaexam<=22 
+	** Test of differences at various ages
+	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
+
+
+
+
+
+
+
+
+
 
 
 
 
 /*
-** SEM: Censored regression - censored at lower limit spleen length of 40mm
-gsem saheight <- c.aaexam##geno if aaexam>=12 & aaexam<=22 , family(gaussian, lcensored(40))
+** TOBIT: Censored regression - censored at lower limit spleen length of 45mm
+xttobit sheight_ip c.aaexam##geno if aaexam>=12 & aaexam<=22 , ll(45)
 	margins geno, at(aaexam=(12(2)22)) vsquish
-	marginsplot, x(aaexam) name(sem)
+	marginsplot, x(aaexam) name(tobit_unadj)  ylab(40(20)140)
 	** Test of genotype differences at various ages
 	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
+
+xttobit saheight_ip c.aaexam##geno if aaexam>=12 & aaexam<=22 , ll(lcensor_val)
+	margins geno, at(aaexam=(12(2)22)) vsquish
+	marginsplot, x(aaexam) name(tobit_adj) ylab(0(20)100)
+	** Test of genotype differences at various ages
+	margins, dydx(geno) at(aaexam=(12(2)22)) vsquish
+
 
