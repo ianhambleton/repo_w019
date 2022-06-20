@@ -122,7 +122,7 @@ label var weight "Participant weight (kg)"
 label var height "Participant height (m)"
 label var stat "Participant status"
 label var doexam "Date of participant spleen examination"
-label var aaexam "Age at participant spleen examination (in years)"
+label var aaexam "Age (Yrs)"
 label var sheight "Spleen length (cm)" 
 
 ** ---------------------------------------------------------------------
@@ -243,16 +243,5 @@ replace sheight_ip = 45 if sheight<45
 
 label data "Spleen size: SCD cohort study Jamaica - SS participants" 
 save "`datapath'\spleen_ss_new", replace
-
-** Join the datasets
-use "`datapath'\spleen_aa_new", clear
-append using "`datapath'\spleen_ss_new"
-append using "`datapath'\spleen_sc"
-append using "`datapath'\spleen_athal"
-label data "Spleen size: SCD cohort study Jamaica - AA, SS, SC, S-beta-thal participants" 
-save "`datapath'\spleen_all", replace
-
-
-
 
 

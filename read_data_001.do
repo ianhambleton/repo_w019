@@ -162,7 +162,7 @@ label var weight "Participant weight (kg)"
 label var height "Participant height (m)"
 label var stat "Participant status"
 label var doexam "Date of participant spleen examination"
-label var aaexam "Age at participant spleen examination (in years)"
+label var aaexam "Age (Yrs)"
 label var sheight "Spleen length (cm)" 
 
 label data "Spleen size: SCD cohort study Jamaica - SS participants" 
@@ -238,7 +238,7 @@ label var aaexam "Age at participant spleen examination (in years)"
 label var sheight "Spleen length (cm)" 
 
 label data "Spleen size: SCD cohort study Jamaica - SC participants" 
-save "`datapath'\spleen_sc", replace
+save "`datapath'\spleen_sc_old", replace
 
 
 
@@ -306,7 +306,7 @@ label var height "Participant height (m)"
 label var stat "Participant status"
 label var doexam "Date of participant spleen examination"
 label var aaexam "Age at participant spleen examination (in years)"
-label var sheight "Spleen length (cm)" 
+label var sheight "Spleen length (mm)" 
 
 label data "Spleen size: SCD cohort study Jamaica - Alpha Thal participants" 
 save "`datapath'\spleen_athal", replace

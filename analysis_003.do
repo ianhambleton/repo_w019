@@ -322,7 +322,7 @@ preserve
 	
 restore
 
-
+*/
 
 ** Figure 3 PROFILES
 
@@ -784,10 +784,10 @@ restore
 ** Save the PDF
     local c_date = c(current_date)
     local date_string = subinstr("`c_date'", " ", "", .)
-    putpdf save "`outputpath'/Figure_One_`date_string'", replace
+    putpdf save "`outputpath'/Figure_One_SS_`date_string'", replace
 
 
-*/
+/*
 
 ** Create Table of observed values by Genotype and Age
 ** Separate tables by Genotype
