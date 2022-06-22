@@ -339,16 +339,16 @@ restore
 
 ** GREY SCALE COLOR SCHEME
 ** COMMENT OUT this color scheme for a color graphic
-	colorpalette grey, n(20)  nograph
-	local list r(p) 
-
-	local blu1 `r(p12)'
-	local red1 `r(p16)'
-	local ora1 `r(p20)'
-
-	local blu2 `r(p7)'
-	local red2 `r(p11)'
-	local ora2 `r(p15)'
+///	colorpalette grey, n(20)  nograph
+///	local list r(p) 
+///
+///	local blu1 `r(p12)'
+///	local red1 `r(p16)'
+///	local ora1 `r(p20)'
+///
+///	local blu2 `r(p7)'
+///	local red2 `r(p11)'
+///	local ora2 `r(p15)'
 
 ** PANEL 
 ** FEMALES: Unadjusted spleen length
@@ -415,12 +415,12 @@ preserve
 		#delimit ;
 			gr twoway
 				/// SS female
-				(line sm_p50 agroups if geno==2 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`blu1'%60") mlw(0.1) lc("`blu1'%60") lp("l") )
-				(rarea sm_p25 sm_p75 agroups if geno==2 & sex==1 	, fc("`blu2'%20") lw(none) )
+				(line sm_p50 agroups if geno==2 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`blu1'") mlw(0.1) lc("`blu1'") lp("l") )
+				(rarea sm_p25 sm_p75 agroups if geno==2 & sex==1 	, fc("`blu2'%50") lw(none) )
 
 				/// AA female
-				(line sm_p50 agroups if geno==1 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`red1'%60") mlw(0.1) lc("`red1'%60") lp("l") )
-				(rarea sm_p25 sm_p75 agroups if geno==1 & sex==1 	, fc("`red2'%20") lw(none) )
+				(line sm_p50 agroups if geno==1 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`red1'") mlw(0.1) lc("`red1'") lp("l") )
+				(rarea sm_p25 sm_p75 agroups if geno==1 & sex==1 	, fc("`red2'%50") lw(none) )
 
 				/// SC female
 				/// (line sm_p50 agroups if geno==3 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`ora1'%60") mlw(0.1) lc("`ora1'%60") lp("l") )
@@ -522,12 +522,12 @@ preserve
 		#delimit ;
 			gr twoway
 				/// SS male
-				(line sm_p50 agroups if geno==2 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`blu1'%60") mlw(0.1) lc("`blu1'%60") lp("-") )
-				(rarea sm_p25 sm_p75 agroups if geno==2 & sex==2 	, fc("`blu2'%20") lw(none) )
+				(line sm_p50 agroups if geno==2 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`blu1'") mlw(0.1) lc("`blu1'") lp("-") )
+				(rarea sm_p25 sm_p75 agroups if geno==2 & sex==2 	, fc("`blu2'%50") lw(none) )
 
 				/// AA male
-				(line sm_p50 agroups if geno==1 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`red1'%60") mlw(0.1) lc("`red1'%60") lp("-") )
-				(rarea sm_p25 sm_p75 agroups if geno==1 & sex==2 	, fc("`red2'%20") lw(none) )
+				(line sm_p50 agroups if geno==1 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`red1'") mlw(0.1) lc("`red1'") lp("-") )
+				(rarea sm_p25 sm_p75 agroups if geno==1 & sex==2 	, fc("`red2'%50") lw(none) )
 
 				/// SC male
 				/// (line sm_p50 agroups if geno==3 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`ora1'%60") mlw(0.1) lc("`ora1'%60") lp("-") )
@@ -631,12 +631,12 @@ preserve
 		#delimit ;
 			gr twoway
 				/// SS female
-				(line sm_p50 agroups if geno==2 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`blu1'%60") mlw(0.1) lc("`blu1'%60") lp("l") )
-				(rarea sm_p25 sm_p75 agroups if geno==2 & sex==1 	, fc("`blu2'%20") lw(none) )
+				(line sm_p50 agroups if geno==2 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`blu1'") mlw(0.1) lc("`blu1'") lp("l") )
+				(rarea sm_p25 sm_p75 agroups if geno==2 & sex==1 	, fc("`blu2'%50") lw(none) )
 
 				/// AA female
-				(line sm_p50 agroups if geno==1 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`red1'%60") mlw(0.1) lc("`red1'%60") lp("l") )
-				(rarea sm_p25 sm_p75 agroups if geno==1 & sex==1 	, fc("`red2'%20") lw(none) )
+				(line sm_p50 agroups if geno==1 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`red1'") mlw(0.1) lc("`red1'") lp("l") )
+				(rarea sm_p25 sm_p75 agroups if geno==1 & sex==1 	, fc("`red2'%50") lw(none) )
 
 				/// SC female
 				/// (line sm_p50 agroups if geno==3 & sex==1 			,  msize(2) m(o) mlc(gs10) mfc("`ora1'%60") mlw(0.1) lc("`ora1'%60") lp("l") )
@@ -738,12 +738,12 @@ preserve
 		#delimit ;
 			gr twoway
 				/// SS male
-				(line sm_p50 agroups if geno==2 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`blu1'%60") mlw(0.1) lc("`blu1'%60") lp("-") )
-				(rarea sm_p25 sm_p75 agroups if geno==2 & sex==2 	, fc("`blu2'%20") lw(none) )
+				(line sm_p50 agroups if geno==2 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`blu1'") mlw(0.1) lc("`blu1'") lp("-") )
+				(rarea sm_p25 sm_p75 agroups if geno==2 & sex==2 	, fc("`blu2'%50") lw(none) )
 
 				/// AA male
-				(line sm_p50 agroups if geno==1 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`red1'%60") mlw(0.1) lc("`red1'%60") lp("-") )
-				(rarea sm_p25 sm_p75 agroups if geno==1 & sex==2 	, fc("`red2'%20") lw(none) )
+				(line sm_p50 agroups if geno==1 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`red1'") mlw(0.1) lc("`red1'") lp("-") )
+				(rarea sm_p25 sm_p75 agroups if geno==1 & sex==2 	, fc("`red2'%50") lw(none) )
 
 				/// SC male
 				/// (line sm_p50 agroups if geno==3 & sex==2 			,  msize(2) m(o) mlc(gs10) mfc("`ora1'%60") mlw(0.1) lc("`ora1'%60") lp("-") )
@@ -805,6 +805,6 @@ restore
 ** Save the PDF
     local c_date = c(current_date)
     local date_string = subinstr("`c_date'", " ", "", .)
-    putpdf save "`outputpath'/Figure_One_SS_`date_string'_grayscale", replace
-    ** putpdf save "`outputpath'/Figure_One_SS_`date_string'_color", replace
+    ** putpdf save "`outputpath'/Figure_One_SS_`date_string'_grayscale", replace
+    putpdf save "`outputpath'/Figure_One_SS_`date_string'_color", replace
 

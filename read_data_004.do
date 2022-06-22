@@ -129,8 +129,8 @@ label var stat "Participant status"
 label var doexam "Date of participant spleen examination"
 label var aaexam "Age (Yrs)"
 label var sheight "Spleen length (mm)" 
-label var alpha "Alpha thal status (SS only)"
-label var hbf "Fetal hemoglobin (SS only)"
+label var alpha "Alpha thal"
+label var hbf "HbF (1% incr.)"
 
 ** ---------------------------------------------------------------------
 ** Create several groups according to spleen measurement behavior

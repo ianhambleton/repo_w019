@@ -189,8 +189,44 @@ label var saheight_re "Spleen length outcome : full estimation"
 sort pid doexam
 xtset pid 
 
+** 22-JUN-2022
+** FINAL MODEL IN PAPER (see below - this is equiv to Model A1)
+** XTREG. No height adjustment
+xtreg saheight_ig c.aaexam##geno if aaexam>=12 & aaexam<=22
+ 	* genotype difference
+ 	margins geno, at(aaexam=(12(2)22)) vsquish
+ 	** Test of genotype differences at various ages
+	margins, dydx(geno) at(aaexam=(12(2)22))
+ 
 
 
+** FEMALE
+xtreg saheight_ig c.aaexam##geno if sex==1 & aaexam>=12 & aaexam<=20
+ 	* genotype difference
+ 	margins geno, at(aaexam=(12(2)22)) vsquish
+ 	** Test of genotype differences at various ages
+	margins, dydx(geno) at(aaexam=(12(2)22))
+
+
+
+** MALE 
+xtreg saheight_ig c.aaexam##geno if sex==2 & aaexam>=12 & aaexam<=20
+ 	* genotype difference
+ 	margins geno, at(aaexam=(12(2)22)) vsquish
+ 	** Test of genotype differences at various ages
+	margins, dydx(geno) at(aaexam=(12(2)22))
+
+/*
+** SS Age-related change alone + effects of Hbf and alpha-thal
+** Adjusted and unadjusted outcome
+xtreg saheight_ig c.aaexam i.sex hbf ib22.alpha if aaexam>=12 & aaexam<=22 & geno==2
+** AA Age-related change alone
+** xtreg saheight_ig c.aaexam i.sex if geno==1
+
+/*
+
+** 21-JUN-2022
+** CREATING THE LAST DOCUMENT OUTPUTS IN PREPARATION FOR DRAFT SS PAPER
 ** --------------------------------------------------------------
 ** A. 	XTREG. Models 1-4
 ** --------------------------------------------------------------
@@ -198,32 +234,38 @@ collect create MyModels
 
 ** Models 1-4 (using xtset) 
 #delimit ; 
-	qui: collect _r_b _r_ci _r_p , 
+	qui: collect e(N) e(N_g) _r_b _r_ci _r_p , 
 			name(MyModels) 
-			tag(model[(1) No est])                
+			tag(model[(A1)])                
 			: xtreg saheight_ig c.aaexam ib2.geno if aaexam>=12 & aaexam<=22, re;
 
-	qui: collect _r_b _r_ci _r_p , 
+	qui: collect e(N) e(N_g) _r_b _r_ci _r_p , 
 			name(MyModels) 
-			tag(model[(2) Breath est])                
+			tag(model[(A2)])                
 			: xtreg saheight_sb c.aaexam ib2.geno if aaexam>=12 & aaexam<=22, re;
 
-	qui: collect _r_b _r_ci _r_p , 
+	qui: collect e(N) e(N_g) _r_b _r_ci _r_p , 
 			name(MyModels) 
-			tag(model[(3) Atrophy est])                
+			tag(model[(A3)])                
 			: xtreg saheight_at c.aaexam ib2.geno if aaexam>=12 & aaexam<=22, re;
 
-	qui: collect _r_b _r_ci _r_p , 
+	qui: collect e(N) e(N_g) _r_b _r_ci _r_p , 
 			name(MyModels) 
-			tag(model[(4) Full est])                
+			tag(model[(A4)])                
 			: xtreg saheight_re c.aaexam ib2.geno if aaexam>=12 & aaexam<=22, re;
 #delimit cr
 
+** Add model level information
+	collect addtags extra[e(N)], fortags(result[N])
+	collect addtags extra[e(N_g)], fortags(result[N_g])
+	collect recode result N=_r_b N_g=_r_b
 ** turn off factor base levels
 	collect style showbase off
 ** remove vertical line 
 	collect style cell border_block, border(right, pattern(nil))
 ** Change row headers
+	collect label levels extra e(N) "Observations"
+	collect label levels extra e(N_g) "Participants"
 	collect label levels result _r_b "Estimate", modify
 	collect label levels result ci1 "95% CI", modify
 	collect label levels result _r_p "p-val", modify
@@ -232,88 +274,279 @@ collect create MyModels
 	collect label levels geno 2 "SS", modify
 	collect label levels geno 3 "SC vs SS", modify
 ** Formatting the estimates
+	collect style cell extra[e(N)], halign(center) nformat(%6.0fc)
+	collect style cell extra[e(N_g)], halign(center) nformat(%6.0fc)
 	collect composite define ci1 = _r_ci, trim replace
+	collect style cell result[e(N)], nformat(%5.0f) halign(center)
+	collect style cell result[e(N_g)], nformat(%5.0f) halign(center)
 	collect style cell result[_r_b], nformat(%5.2f) halign(center)
 	collect style cell result[_r_p], nformat(%5.4f) halign(center)
 	collect style cell result[ci1], nformat(%6.2f) sformat("(%s)") cidelimiter(",") halign(center)
+	collect style cell cell_type[column-header], halign(center)
+	** Extra horizontal line 
+	collect style cell extra[e(N_g)], border(bottom, pattern(single))
+	** Table notes
+	collect style notes, font(,italic)
+	collect notes 1: "Models do not account for censoring due to unmeasurable spleen atrophy. (Model A1) Ignores all visits with unmeasured spleen. (Model A2) Estimates spleen sizes in presence of small breaths. (Model A3) Estimates spleen sizes in presence of spleen atrophy. (Model A4) Full spleen size estimation (small breaths / atrophy)."
 ** Preview table
-	collect layout (colname[aaexam 1.geno 3.geno]#result[_r_b ci1 _r_p]) (model), name(MyModels)
+	#delimit ; 
+	collect layout 
+			(extra colname[aaexam 1.geno 3.geno]#result[_r_b ci1 _r_p]) 
+			(model[(A1) (A2) (A3) (A4)]), 
+			name(MyModels);
+	#delimit cr
 
 
-
+** --------------------------------------------------------------
+** A. 	XTTOBIT. Models 1-4
+** --------------------------------------------------------------
 ** Models 5-8 (using xttobit) 
 collect create MyModels2
 #delimit ; 
 	qui: collect _r_b _r_ci _r_p , 
 			name(MyModels2) 
-			tag(model[(1) No est])                
+			tag(model[(B1)])                
 			: xttobit saheight_ig c.aaexam ib2.geno if aaexam>=12 & aaexam<=22 , ll(lcensor);
 
 	qui: collect _r_b _r_ci _r_p , 
 			name(MyModels2) 
-			tag(model[(2) Breath est])                
+			tag(model[(B2)])                
 			: xttobit saheight_sb c.aaexam ib2.geno if aaexam>=12 & aaexam<=22 , ll(lcensor);
 
 	qui: collect _r_b _r_ci _r_p , 
 			name(MyModels2) 
-			tag(model[(3) Atrophy est])                
+			tag(model[(B3)])                
 			: xttobit saheight_at c.aaexam ib2.geno if aaexam>=12 & aaexam<=22 , ll(lcensor);
 
 	qui: collect _r_b _r_ci _r_p , 
 			name(MyModels2) 
-			tag(model[(4) Full est])                
+			tag(model[(B4)])                
 			: xttobit saheight_re c.aaexam ib2.geno if aaexam>=12 & aaexam<=22 , ll(lcensor);
 #delimit cr
 
+** Add model level information
+	collect addtags extra[e(N)], fortags(result[N])
+	collect addtags extra[e(N_g)], fortags(result[N_g])
+	collect recode result N=_r_b N_g=_r_b
 ** turn off factor base levels
 	collect style showbase off
 ** remove vertical line 
 	collect style cell border_block, border(right, pattern(nil))
 ** Change row headers
+	collect label levels extra e(N) "Observations"
+	collect label levels extra e(N_g) "Participants"
 	collect label levels result _r_b "Estimate", modify
-	collect label levels result ci2 "95% CI", modify
+	collect label levels result ci1 "95% CI", modify
 	collect label levels result _r_p "p-val", modify
 	collect label dim geno "Genotype", modify
 	collect label levels geno 1 "AA vs SS", modify
 	collect label levels geno 2 "SS", modify
 	collect label levels geno 3 "SC vs SS", modify
 ** Formatting the estimates
-	collect composite define ci2 = _r_ci, trim replace
+	collect style cell extra[e(N)], halign(center) nformat(%6.0fc)
+	collect style cell extra[e(N_g)], halign(center) nformat(%6.0fc)
+	collect composite define ci1 = _r_ci, trim replace
+	collect style cell result[e(N)], nformat(%5.0f) halign(center)
+	collect style cell result[e(N_g)], nformat(%5.0f) halign(center)
 	collect style cell result[_r_b], nformat(%5.2f) halign(center)
 	collect style cell result[_r_p], nformat(%5.4f) halign(center)
-	collect style cell result[ci2], nformat(%6.2f) sformat("(%s)") cidelimiter(",") halign(center)
-** Preview table
-	collect layout (colname[aaexam 1.geno 3.geno]#result[_r_b ci2 _r_p]) (model), name(MyModels2)
+	collect style cell result[ci1], nformat(%6.2f) sformat("(%s)") cidelimiter(",") halign(center)
+	collect style cell cell_type[column-header], halign(center)
+	** Extra horizontal line 
+	collect style cell extra[e(N_g)], border(bottom, pattern(single))
+	** Table notes
+	collect style notes, font(,italic)
+	collect notes 1: "Models account for censoring due to unmeasurable spleen atrophy. (Model B1) Ignores all visits with unmeasured spleen. (Model B2) Estimates spleen sizes in presence of small breaths. (Model B3) Estimates spleen sizes in presence of spleen atrophy. (Model B4) Full spleen size estimation (small breaths / atrophy)."
 
-** Export TWO tables to DOCX
+** Preview table
+	#delimit ; 
+	collect layout 
+			(extra colname[aaexam 1.geno 3.geno]#result[_r_b ci1 _r_p]) 
+			(model[(B1) (B2) (B3) (B4)]), 
+			name(MyModels2);
+	#delimit cr
+
+
+
+** --------------------------------------------------------------
+** A. 	XTREG (SS only for Hbf and Alpha Thal). Models 1-4
+** --------------------------------------------------------------
+collect create MyModels3
+#delimit ; 
+	qui: collect e(N) e(N_g) _r_b _r_ci _r_p , 
+			name(MyModels3) 
+			tag(model[(A1)])                
+			: xtreg saheight_ig c.aaexam hbf i.alpha if aaexam>=12 & aaexam<=22 & geno==2, re;
+
+	qui: collect e(N) e(N_g) _r_b _r_ci _r_p , 
+			name(MyModels3) 
+			tag(model[(A2)])                
+			: xtreg saheight_sb c.aaexam hbf i.alpha if aaexam>=12 & aaexam<=22 & geno==2, re;
+
+	qui: collect e(N) e(N_g) _r_b _r_ci _r_p , 
+			name(MyModels3) 
+			tag(model[(A3)])                
+			: xtreg saheight_at c.aaexam hbf i.alpha if aaexam>=12 & aaexam<=22 & geno==2, re;
+
+	qui: collect e(N) e(N_g) _r_b _r_ci _r_p , 
+			name(MyModels3) 
+			tag(model[(A4)])                
+			: xtreg saheight_re c.aaexam hbf i.alpha if aaexam>=12 & aaexam<=22 & geno==2, re;
+#delimit cr
+
+** Add model level information
+	collect addtags extra[e(N)], fortags(result[N])
+	collect addtags extra[e(N_g)], fortags(result[N_g])
+	collect recode result N=_r_b N_g=_r_b
+** turn off factor base levels
+	collect style showbase off
+** remove vertical line 
+	collect style cell border_block, border(right, pattern(nil))
+** Change row headers
+	collect label levels extra e(N) "Observations"
+	collect label levels extra e(N_g) "Participants"
+	collect label levels result _r_b "Estimate", modify
+	collect label levels result ci1 "95% CI", modify
+	collect label levels result _r_p "p-val", modify
+	collect label dim geno "Genotype", modify
+	collect label levels geno 1 "AA vs SS", modify
+	collect label levels geno 2 "SS", modify
+	collect label levels geno 3 "SC vs SS", modify
+	collect label levels alpha 12 "Alpha thal (12 vs 11)", modify
+	collect label levels alpha 22 "Alpha thal (22 vs 11)", modify
+	** Formatting the estimates
+	collect style cell extra[e(N)], halign(center) nformat(%6.0fc)
+	collect style cell extra[e(N_g)], halign(center) nformat(%6.0fc)
+	collect composite define ci1 = _r_ci, trim replace
+	collect style cell result[e(N)], nformat(%5.0f) halign(center)
+	collect style cell result[e(N_g)], nformat(%5.0f) halign(center)
+	collect style cell result[_r_b], nformat(%5.2f) halign(center)
+	collect style cell result[_r_p], nformat(%5.4f) halign(center)
+	collect style cell result[ci1], nformat(%6.2f) sformat("(%s)") cidelimiter(",") halign(center)
+	collect style cell cell_type[column-header], halign(center)
+	** Extra horizontal line 
+	collect style cell extra[e(N_g)], border(bottom, pattern(single))
+	** Table notes
+	collect style notes, font(,italic)
+	collect notes 1: "Although the decreasing spleen size with age is higher in a model of SS participants only, this genotype*age interaction did not achieve statistical significance. The interaction is therefore not included in the full genotype models (Tables A1/B1)"
+** Preview table
+	#delimit ; 
+	collect layout 
+			(extra colname[aaexam hbf 12.alpha 22.alpha]#result[_r_b ci1 _r_p]) 
+			(model[(A1) (A2) (A3) (A4)]), 
+			name(MyModels3);
+	#delimit cr
+
+
+** --------------------------------------------------------------
+** A. 	XTTOBIT (SS only for Hbf and Alpha Thal). Models 1-4
+** --------------------------------------------------------------
+collect create MyModels4
+#delimit ; 
+	qui: collect e(N) e(N_g) _r_b _r_ci _r_p , 
+			name(MyModels4) 
+			tag(model[(B1)])                
+			: xttobit saheight_ig c.aaexam hbf i.alpha if aaexam>=12 & aaexam<=22 & geno==2, ll(lcensor);
+
+	qui: collect e(N) e(N_g) _r_b _r_ci _r_p , 
+			name(MyModels4) 
+			tag(model[(B2)])                
+			: xttobit saheight_sb c.aaexam hbf i.alpha if aaexam>=12 & aaexam<=22 & geno==2, ll(lcensor);
+
+	qui: collect e(N) e(N_g) _r_b _r_ci _r_p , 
+			name(MyModels4) 
+			tag(model[(B3)])                
+			: xttobit saheight_at c.aaexam hbf i.alpha if aaexam>=12 & aaexam<=22 & geno==2, ll(lcensor);
+
+	qui: collect e(N) e(N_g) _r_b _r_ci _r_p , 
+			name(MyModels4) 
+			tag(model[(B4)])                
+			: xttobit saheight_re c.aaexam hbf i.alpha if aaexam>=12 & aaexam<=22 & geno==2, ll(lcensor);
+#delimit cr
+
+** Add model level information
+	collect addtags extra[e(N)], fortags(result[N])
+	collect addtags extra[e(N_g)], fortags(result[N_g])
+	collect recode result N=_r_b N_g=_r_b
+** turn off factor base levels
+	collect style showbase off
+** remove vertical line 
+	collect style cell border_block, border(right, pattern(nil))
+** Change row headers
+	collect label levels extra e(N) "Observations"
+	collect label levels extra e(N_g) "Participants"
+	collect label levels result _r_b "Estimate", modify
+	collect label levels result ci1 "95% CI", modify
+	collect label levels result _r_p "p-val", modify
+	collect label dim geno "Genotype", modify
+	collect label levels geno 1 "AA vs SS", modify
+	collect label levels geno 2 "SS", modify
+	collect label levels geno 3 "SC vs SS", modify
+	collect label levels alpha 12 "Alpha thal (12 vs 11)", modify
+	collect label levels alpha 22 "Alpha thal (22 vs 11)", modify
+
+** Formatting the estimates
+	collect style cell extra[e(N)], halign(center) nformat(%6.0fc)
+	collect style cell extra[e(N_g)], halign(center) nformat(%6.0fc)
+	collect composite define ci1 = _r_ci, trim replace
+	collect style cell result[e(N)], nformat(%5.0f) halign(center)
+	collect style cell result[e(N_g)], nformat(%5.0f) halign(center)
+	collect style cell result[_r_b], nformat(%5.2f) halign(center)
+	collect style cell result[_r_p], nformat(%5.4f) halign(center)
+	collect style cell result[ci1], nformat(%6.2f) sformat("(%s)") cidelimiter(",") halign(center)
+	collect style cell cell_type[column-header], halign(center)
+	** Extra horizontal line 
+	collect style cell extra[e(N_g)], border(bottom, pattern(single))
+** Preview table
+	#delimit ; 
+	collect layout 
+			(extra colname[aaexam hbf 12.alpha 22.alpha]#result[_r_b ci1 _r_p]) 
+			(model[(B1) (B2) (B3) (B4)]), 
+			name(MyModels4);
+	#delimit cr
+
+
+
+** HbF and Alpha Thal for the 8 models
+
+** Export FOUR tables to DOCX
 	putdocx clear
-	putdocx begin
+	putdocx begin, margin(all, 0.25) font(calibri,10,"000000")
 	putdocx paragraph, style(Heading2)
-	putdocx text ("Brief Methods")
+	putdocx text ("Spleen length : Modelling Overview")
 	putdocx paragraph
 	putdocx text ("We've fitted quite a few models over the past fortnight. I thought it worth documenting the full set of models ")
 	putdocx text ("and how they affect the role of age and genotype on estimated spleen size. ")
 
-	putdocx text ("Table A contains 4 regression models, all without censoring that helps to account for spleen atrophy. "), linebreak(1)
-	putdocx text ("Model 1: Only includes measured spleens: all unmeasurable spleen visits ignored."), linebreak(1)
-	putdocx text ("Model 2: Measured spleens + estimates of spleen length due to small breaths."), linebreak(1)
-	putdocx text ("Model 3: Measured spleens + estimates of spleen length due to spleen atrophy."), linebreak(1)
-	putdocx text ("Model 4: Measured spleens + estimates of spleen length due to small breaths and spleen atrophy."), linebreak(2)
-	putdocx text ("Table A: Spleen length regression estimates WITHOUT censoring")
-	collect style putdocx, width(100%) title("Table A: Spleen length regression estimates WITHOUT censoring")
+	putdocx text ("Tables A1 and A2 contain 4 regression models, all without the censoring that can help to account for spleen atrophy. "), linebreak(1)
+	putdocx text ("Model A1: Only includes measured spleens: all unmeasurable spleen visits ignored."), linebreak(1)
+	putdocx text ("Model A2: Measured spleens + estimates of spleen length due to small breaths."), linebreak(1)
+	putdocx text ("Model A3: Measured spleens + estimates of spleen length due to spleen atrophy."), linebreak(1)
+	putdocx text ("Model A4: Measured spleens + estimates of spleen length due to small breaths and spleen atrophy."), linebreak(2)
+	putdocx text ("Table A1: Spleen length regression estimates WITHOUT censoring")
+	collect style putdocx, width(100%)
 	putdocx collect , name(MyModels)
-
 	putdocx paragraph
-	putdocx text ("Table B contains the same 4 regression models, ")
+	putdocx text ("Table A2: Effect of HbF and alpha thal on SS spleen size")
+	collect style putdocx, width(100%)
+	putdocx collect , name(MyModels3)
+
+	** Page 2
+	putdocx pagebreak
+	putdocx paragraph
+	putdocx text ("Tables B1 and B2 contain the same 4 regression models, ")
 	putdocx text ("now with censoring "), underline
 	putdocx text ("to account for spleen atrophy. ")
 	putdocx text ("This censoring allows us to recognise our lower limit of spleen detection. "), linebreak(2)
-	putdocx text ("Table B: Spleen length regression estimates WITH censoring")
+	putdocx text ("Table B1: Spleen length regression estimates WITH censoring")
 	collect style putdocx, width(100%)
 	putdocx collect , name(MyModels2)
+	putdocx paragraph
+	putdocx text ("Table B2: Effect of HbF and alpha thal on SS spleen size")
+	collect style putdocx, width(100%)
+	putdocx collect , name(MyModels4)
 
 	putdocx save "`outputpath'/regression_estimates", replace
-
 
 
 
@@ -321,6 +554,8 @@ collect create MyModels2
 
 ** FOUR xtset models
 xtreg saheight_ig c.aaexam ib2.geno if aaexam>=12 & aaexam<=22
+ 	margins geno, at(aaexam=(12(2)22)) vsquish post
+xtreg saheight_ig c.aaexam ib2.geno i.sex if aaexam>=12 & aaexam<=22
  	margins geno, at(aaexam=(12(2)22)) vsquish post
 xtreg saheight_sb c.aaexam ib2.geno if aaexam>=12 & aaexam<=22
  	margins geno, at(aaexam=(12(2)22)) vsquish post
@@ -568,7 +803,7 @@ reshape wide spleen lb ub , i(model age) j(geno)
 		putdocx table ss(3,1) = (" "),  font(calibri light,10, "000000")
 		putdocx table ss(4,1) = ("Full Estimation. No Censoring (Table A, Model 4)."),  font(calibri light,10, "000000")
 		putdocx table ss(5,1) = (" "),  font(calibri light,10, "000000")
-		putdocx table ss(6,1) = ("Full Estimation, Censored Atrophy (Table A, Model 4)"),  font(calibri light,10, "000000")
+		putdocx table ss(6,1) = ("Full Estimation, Censored Atrophy (Table B, Model 4)"),  font(calibri light,10, "000000")
 		putdocx table ss(7,1) = (" "),  font(calibri light,10, "000000")
 
 		** Merge cells
